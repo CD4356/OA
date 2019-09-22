@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- 1、导入spring-service.xml配置文件 -->
+    <import resource="spring-service.xml"/>
+
+    <!--开启AspectJ的注解开发,自动代理-->
+    <aop:aspectj-autoproxy/>
+    <context:component-scan base-package="com.cd.oa.global"/>
+
+    <!-- 2、包扫描 -->
+    <context:component-scan base-package="com.cd.oa.controller"/>
+
+    <!-- 3、注解驱动 -->
+    <mvc:annotation-driven/>
+
+    <!-- 4、静态资源交给servlet处理 -->
+    <mvc:default-servlet-handler/>
+
+    <!-- 5、视图解析器 -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <!--<property name="viewClass"  value="org.springframework.web.servlet.view.JstlView"/>-->
+        <property name="prefix" value="/WEB-INF/pages/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+    
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <!--拦截所有请求-->
+            <mvc:mapping path="/**"/>
+            <!--不拦截含有login的请求-->
+            <mvc:exclude-mapping path="/to_login"/>
+            <mvc:exclude-mapping path="/login"/>
+            <bean class="com.cd.oa.global.GlobalInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+</beans>

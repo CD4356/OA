@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+         version="4.0">
+
+    <!--编码过滤器,处理中文乱码 -->
+    <filter>
+        <!--指定过滤器的名称,唯一标识-->
+        <filter-name>encodingFilter</filter-name>
+        <!--指定过滤器的类(全类名),web服务器才会对该过滤器类进行对象的创建-->
+        <filter-class>com.cd.oa.global.EncodingFilter</filter-class>
+        <!--过滤器参数初始化-->
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>utf-8</param-value>
+        </init-param>
+    </filter>
+    <!--配置拦截请求的映射-->
+    <filter-mapping>
+        <!--指定哪个过滤器进行拦截映射-->
+        <filter-name>encodingFilter</filter-name>
+        <!--拦截所有路径型（如：/user/add）和后缀型的url请求（如：*.jsp、*.html、*.css、*.js）-->
+        <!--使用/*通配符,拦截所有请求-->
+        <url-pattern>/*</url-pattern><!--拦截到请求后,根据过滤器名称找到注册的过滤器,对请求进行处理-->
+    </filter-mapping>
+    
+    <!--
+    将所有的请求都先交给默认的servlet进行过滤,默认servlet过滤后剩下的就交给dispatcherServlet。
+    这样做的好处是先将静态资源请求过滤掉,避免所有请求都交给DispatcherServlet,影响效率
+    -->
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>/assets/*</url-pattern>
+        <url-pattern>/js/*</url-pattern>
+        <url-pattern>/vendor/*</url-pattern>
+        <url-pattern>*.js</url-pattern>
+        <url-pattern>*.css</url-pattern>
+        <url-pattern>*.jpg</url-pattern>
+        <url-pattern>*.png</url-pattern>
+        <url-pattern>*.git</url-pattern>
+    </servlet-mapping>
+
+    <!-- 前置控制器 -->
+	<servlet>
+        <servlet-name>dispatcherServlet</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <!--加载spring mvc配置文件-->
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath:spring-controller.xml</param-value>
+        </init-param>
+        <!--项目启动时自动加载-->
+        <!--<load-on-startup>1</load-on-startup>-->
+    </servlet>
+    <!--配置servlet映射关系,将servlet与url绑定,通过别名匹配来绑定-->
+    <servlet-mapping>
+        <servlet-name>dispatcherServlet</servlet-name>
+        <!--拦截所有路径型请求-->
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+	
+</web-app>

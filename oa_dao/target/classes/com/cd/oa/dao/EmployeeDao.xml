@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 4.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cd.oa.dao.EmployeeDao">
+
+    <!--配置实体类属性与表字段的映射关系,结果集-->
+    <resultMap id="employee" type="Employee">
+        <!--主键字段用id配置,非主键字段用result配置 【property:实体类属性名,column:表字段名】-->
+        <id property="id" column="id" javaType="String"/>
+        <result property="password" column="password" javaType="String"/>
+        <result property="name" column="name" javaType="String"/>
+        <result property="departmentId" column="department_id" javaType="String"/>
+        <result property="post" column="post" javaType="String"/>
+        <!--管理部门的结果集,用association标签配置-->
+        <association property="department" column="department_id" javaType="Department">
+            <id property="id" column="did" javaType="String"/>
+            <result property="name" column="dname" javaType="String"/>
+        </association>
+    </resultMap>
+
+    <!-- id名必须与dao接口中的对应的方法名一致,这样生产对象的时候才能将sql语句和dao接口对应的方法关联起来 -->
+    <insert id="insert" parameterType="Employee">
+        <!-- 注意：这里的名字是实体类的属性名,而不是表的字段名 -->
+        insert into employee values(#{id},#{password},#{name},#{departmentId},#{post})
+    </insert>
+
+    <update id="update" parameterType="Employee">
+        <!-- name=#{name}表示:字段名=属性名 -->
+        update employee set name=#{name},password=#{password},department_id=#{departmentId},post=#{post} where id=#{id}
+    </update>
+
+    <delete id="delete" parameterType="String">
+        delete from employee where id=#{id}
+    </delete>
+
+    <!--select标签需要配置resultMap属性,注意这个属性中不能直接使用pojo实体类,
+        因为实体类的属性名和表的字段名不一定一样的,所以需要我们额外配置一个resultMap标签,
+        用来将每一个属性和每一个属性进行匹配-->
+    <select id="select" parameterType="String" resultMap="employee">
+        select e.*,d.id did,d.name dname from employee e
+        left join department d on (d.id=e.department_id)
+        where e.id=#{id}
+    </select>
+
+    <select id="selectAll" resultMap="employee">
+        select e.*,d.id did,d.name dname from employee e left join department d on d.id=e.department_id
+    </select>
+
+    <select id="selectByDepartmentAndPost" resultMap="employee">
+        select e.*,d.id did,d.name dname from employee e left join department d on d.id=e.department_id
+        <where>
+            <if test="did!=null">
+                and e.department_id=#{did}
+            </if>
+            <if test="post!=null">
+                and e.post=#{post}
+            </if>
+        </where>
+    </select>
+
+</mapper>
